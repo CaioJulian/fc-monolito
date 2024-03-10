@@ -1,11 +1,11 @@
 import { Sequelize } from "sequelize-typescript";
 import { InvoiceModel } from "./invoice.model";
 import Id from "../../@shared/domain/value-object/id.value-object";
-import Item from "../domain/item.entity";
+import InvoiceItem from "../domain/invoice-item.entity";
 import Address from "../../@shared/domain/value-object/address";
 import Invoice from "../domain/invoice.entity";
 import InvoiceRepository from "./invoice.repository";
-import { ProductModel } from "./product.model";
+import { InvoiceItemModel } from "./invoice-item.model";
 
 describe("Invoice Repository test", () => {
   let sequelize: Sequelize;
@@ -18,7 +18,7 @@ describe("Invoice Repository test", () => {
       sync: { force: true },
     });
 
-    sequelize.addModels([InvoiceModel, ProductModel]);
+    sequelize.addModels([InvoiceItemModel, InvoiceModel]);
     await sequelize.sync();
   });
 
@@ -40,12 +40,12 @@ describe("Invoice Repository test", () => {
         "88888-888"
       ),
       items: [
-        new Item({
+        new InvoiceItem({
           id: new Id("1"),
           name: "Produto 1",
           price: 100,
         }),
-        new Item({
+        new InvoiceItem({
           id: new Id("2"),
           name: "Produto 2",
           price: 200,
@@ -60,7 +60,7 @@ describe("Invoice Repository test", () => {
 
     const invoiceDb = await InvoiceModel.findOne({
       where: { id: "1" },
-      include: [ProductModel],
+      include: [InvoiceItemModel],
     });
 
     expect(invoiceDb).toBeDefined();
@@ -73,12 +73,12 @@ describe("Invoice Repository test", () => {
     expect(invoiceDb.city).toEqual(invoice.address.city);
     expect(invoiceDb.state).toEqual(invoice.address.state);
     expect(invoiceDb.zipCode).toEqual(invoice.address.zipCode);
-    expect(invoiceDb.products[0].id).toEqual(invoice.items[0].id.id);
-    expect(invoiceDb.products[0].name).toEqual(invoice.items[0].name);
-    expect(invoiceDb.products[0].price).toEqual(invoice.items[0].price);
-    expect(invoiceDb.products[1].id).toEqual(invoice.items[1].id.id);
-    expect(invoiceDb.products[1].name).toEqual(invoice.items[1].name);
-    expect(invoiceDb.products[1].price).toEqual(invoice.items[1].price);
+    expect(invoiceDb.items[0].id).toEqual(invoice.items[0].id.id);
+    expect(invoiceDb.items[0].name).toEqual(invoice.items[0].name);
+    expect(invoiceDb.items[0].price).toEqual(invoice.items[0].price);
+    expect(invoiceDb.items[1].id).toEqual(invoice.items[1].id.id);
+    expect(invoiceDb.items[1].name).toEqual(invoice.items[1].name);
+    expect(invoiceDb.items[1].price).toEqual(invoice.items[1].price);
     expect(invoiceDb.createdAt).toStrictEqual(invoice.createdAt);
     expect(invoiceDb.updatedAt).toStrictEqual(invoice.updatedAt);
   });
@@ -95,7 +95,7 @@ describe("Invoice Repository test", () => {
         city: "Criciúma",
         state: "SC",
         zipCode: "88888-888",
-        products: [
+        items: [
           {
             id: "1",
             name: "Produto 1",
@@ -111,7 +111,7 @@ describe("Invoice Repository test", () => {
         updatedAt: new Date(),
       },
       {
-        include: [ProductModel],
+        include: [InvoiceItemModel],
       }
     );
 
@@ -127,12 +127,12 @@ describe("Invoice Repository test", () => {
     expect(result.address.city).toEqual(invoice.city);
     expect(result.address.state).toEqual(invoice.state);
     expect(result.address.zipCode).toEqual(invoice.zipCode);
-    expect(result.items[0].id.id).toEqual(invoice.products[0].id);
-    expect(result.items[0].name).toEqual(invoice.products[0].name);
-    expect(result.items[0].price).toEqual(invoice.products[0].price);
-    expect(result.items[1].id.id).toEqual(invoice.products[1].id);
-    expect(result.items[1].name).toEqual(invoice.products[1].name);
-    expect(result.items[1].price).toEqual(invoice.products[1].price);
+    expect(result.items[0].id.id).toEqual(invoice.items[0].id);
+    expect(result.items[0].name).toEqual(invoice.items[0].name);
+    expect(result.items[0].price).toEqual(invoice.items[0].price);
+    expect(result.items[1].id.id).toEqual(invoice.items[1].id);
+    expect(result.items[1].name).toEqual(invoice.items[1].name);
+    expect(result.items[1].price).toEqual(invoice.items[1].price);
     expect(result.createdAt).toStrictEqual(invoice.createdAt);
     expect(result.updatedAt).toStrictEqual(invoice.updatedAt);
   });

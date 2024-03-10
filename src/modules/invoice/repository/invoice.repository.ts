@@ -1,7 +1,7 @@
 import Address from "../../@shared/domain/value-object/address";
 import Id from "../../@shared/domain/value-object/id.value-object";
 import Invoice from "../domain/invoice.entity";
-import Item from "../domain/item.entity";
+import InvoiceItem from "../domain/invoice-item.entity";
 import InvoiceGateway from "../gateway/invoice.gateway";
 import { InvoiceModel } from "./invoice.model";
 
@@ -18,7 +18,7 @@ export default class InvoiceRepository implements InvoiceGateway {
         city: entity.address.city,
         state: entity.address.state,
         zipCode: entity.address.zipCode,
-        products: entity.items.map((item) => ({
+        items: entity.items.map((item) => ({
           id: item.id.id,
           name: item.name,
           price: item.price,
@@ -27,14 +27,14 @@ export default class InvoiceRepository implements InvoiceGateway {
         updatedAt: entity.updatedAt,
       },
       {
-        include: [InvoiceModel.associations.products],
+        include: [InvoiceModel.associations.items],
       }
     );
   }
   async find(id: string): Promise<Invoice> {
     const invoice = await InvoiceModel.findOne({
       where: { id },
-      include: [InvoiceModel.associations.products],
+      include: [InvoiceModel.associations.items],
     });
 
     if (!invoice) {
@@ -53,12 +53,12 @@ export default class InvoiceRepository implements InvoiceGateway {
         invoice.state,
         invoice.zipCode
       ),
-      items: invoice.products.map(
-        (product) =>
-          new Item({
-            id: new Id(product.id),
-            name: product.name,
-            price: product.price,
+      items: invoice.items.map(
+        (item) =>
+          new InvoiceItem({
+            id: new Id(item.id),
+            name: item.name,
+            price: item.price,
           })
       ),
       createdAt: invoice.createdAt,

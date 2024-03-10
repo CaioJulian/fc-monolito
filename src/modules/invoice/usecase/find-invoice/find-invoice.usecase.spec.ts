@@ -1,7 +1,7 @@
 import Address from "../../../@shared/domain/value-object/address";
 import Id from "../../../@shared/domain/value-object/id.value-object";
 import Invoice from "../../domain/invoice.entity";
-import Item from "../../domain/item.entity";
+import InvoiceItem from "../../domain/invoice-item.entity";
 import FindInvoiceUseCase from "./find-invoice.usecase";
 
 describe("Find invoice use case unit test", () => {
@@ -18,12 +18,12 @@ describe("Find invoice use case unit test", () => {
       "88888-888"
     ),
     items: [
-      new Item({
+      new InvoiceItem({
         id: new Id("1"),
         name: "Product 1",
         price: 100,
       }),
-      new Item({
+      new InvoiceItem({
         id: new Id("2"),
         name: "Product 2",
         price: 200,
