@@ -3,7 +3,6 @@ import { setupDb, sequelize, migration } from "../../db/setup.database";
 import { app } from "../express";
 
 describe("Product API e2e test", () => {
-  
   beforeEach(async () => {
     await setupDb();
   });
