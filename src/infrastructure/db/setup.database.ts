@@ -7,6 +7,8 @@ import { ClientModel } from "../../modules/client-adm/repository/client.model";
 import TransactionModel from "../../modules/payment/repository/transaction.model";
 import { InvoiceModel } from "../../modules/invoice/repository/invoice.model";
 import { InvoiceItemModel } from "../../modules/invoice/repository/invoice-item.model";
+import OrderModel from "../../modules/checkout/repository/order.model";
+import OrderItemModel from "../../modules/checkout/repository/order-item.model";
 
 let sequelize: Sequelize;
 let migration: Umzug<any>;
@@ -27,6 +29,8 @@ async function setupDb() {
     TransactionModel,
     InvoiceModel,
     InvoiceItemModel,
+    OrderModel,
+    OrderItemModel,
   ]);
   await sequelize.sync();
 }
