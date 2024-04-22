@@ -7,7 +7,7 @@ import ProductAdmFacadeInterface from "../../../product-adm/facade/product-adm.f
 import StoreCatalogFacade from "../../../store-catalog/facade/store-catalog.facade";
 import Client from "../../domain/client.entity";
 import Order from "../../domain/order.entity";
-import Product from "../../domain/product.entity";
+import OrderItem from "../../domain/order-item.entity";
 import CheckoutGateway from "../../gateway/checkout.gateway";
 import { PlaceOrderInputDto, PlaceOrderOutputDto } from "./place-order.dto";
 
@@ -43,7 +43,7 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
 
     await this.validateProducts(input);
 
-    const products = await Promise.all(
+    const dbProducts = await Promise.all(
       input.products.map((p) => {
         return this.getProduct(p.productId);
       })
@@ -55,6 +55,18 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
       email: client.email,
       address: client.address,
     });
+
+    const products = dbProducts.map(
+      (p) =>
+        new OrderItem({
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          salesPrice: input.products.filter(
+            (prod) => prod.productId === p.id.id
+          )[0].salesPrice,
+        })
+    );
 
     const order = new Order({
       client: myClient,
@@ -98,6 +110,7 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
       products: order.products.map((p) => {
         return {
           productId: p.id.id,
+          salesPrice: p.salesPrice,
         };
       }),
     };
@@ -120,7 +133,7 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
     }
   }
 
-  private async getProduct(productId: string): Promise<Product> {
+  private async getProduct(productId: string): Promise<OrderItem> {
     const product = await this._catalogFacade.find({ id: productId });
     if (!product) {
       throw new Error("Product not found");
@@ -131,6 +144,6 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
       description: product.description,
       salesPrice: product.salesPrice,
     };
-    return new Product(productProps);
+    return new OrderItem(productProps);
   }
 }
