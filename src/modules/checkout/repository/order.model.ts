@@ -27,5 +27,8 @@ export default class OrderModel extends Model {
   client: ClientModel;
 
   @HasMany(() => OrderItemModel)
-  items: OrderItemModel[];
+  products: OrderItemModel[];
+
+  @Column({ allowNull: true })
+  status: string;
 }

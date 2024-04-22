@@ -6,7 +6,7 @@ import ProductModel from "../../store-catalog/repository/product.model";
 import Address from "../../@shared/domain/value-object/address";
 import Client from "../domain/client.entity";
 import Id from "../../@shared/domain/value-object/id.value-object";
-import Product from "../domain/product.entity";
+import OrderItem from "../domain/order-item.entity";
 import CheckoutRepository from "./checkout.repository";
 import Order from "../domain/order.entity";
 
@@ -64,14 +64,14 @@ describe("Checkout Repository", () => {
       updatedAt: new Date(),
     });
 
-    const productOne = new Product({
+    const productOne = new OrderItem({
       id: new Id("1234"),
       name: "Product one",
       description: "Description one",
       salesPrice: 100,
     });
 
-    const productTwo = new Product({
+    const productTwo = new OrderItem({
       id: new Id("6789"),
       name: "Product two",
       description: "Description two",
@@ -102,17 +102,17 @@ describe("Checkout Repository", () => {
 
     const orderModel = await OrderModel.findOne({
       where: { id: order.id.id },
-      include: ["items", "client"],
+      include: ["products", "client"],
     });
 
     expect(orderModel.id).toBe(order.id.id);
     expect(orderModel.client.id).toBe(client.id.id);
 
-    expect(orderModel.items.length).toBe(2);
-    expect(orderModel.items[0].productId).toBe(productOne.id.id);
-    expect(orderModel.items[0].price).toBe(productOne.salesPrice);
-    expect(orderModel.items[1].productId).toBe(productTwo.id.id);
-    expect(orderModel.items[1].price).toBe(productTwo.salesPrice);
+    expect(orderModel.products.length).toBe(2);
+    expect(orderModel.products[0].id).toBe(productOne.id.id);
+    expect(orderModel.products[0].salesPrice).toBe(productOne.salesPrice);
+    expect(orderModel.products[1].id).toBe(productTwo.id.id);
+    expect(orderModel.products[1].salesPrice).toBe(productTwo.salesPrice);
   });
 
   it("should find an order", async () => {
@@ -145,7 +145,7 @@ describe("Checkout Repository", () => {
       updatedAt: new Date(),
     });
 
-    const productOne = new Product({
+    const productOne = new OrderItem({
       id: new Id("456"),
       name: "Product One",
       description: "Description one",
@@ -167,27 +167,35 @@ describe("Checkout Repository", () => {
       products: [productOne],
     });
 
-    await OrderModel.create({
-      id: order.id.id,
-      clientId: order.client.id.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    await OrderItemModel.create({
-      orderId: order.id.id,
-      productId: productOne.id.id,
-      price: 100,
-    });
+    const orderCreated = await OrderModel.create(
+      {
+        id: order.id.id,
+        clientId: order.client.id.id,
+        status: order.status,
+        products: order.products.map((item) => ({
+          id: item.id.id,
+          name: item.name,
+          description: item.description,
+          salesPrice: item.salesPrice,
+        })),
+      },
+      { include: [OrderModel.associations.products] }
+    );
 
     const repository = new CheckoutRepository();
-    const result = await repository.findOrder(order.id.id);
+    const result = await repository.findOrder(orderCreated.id);
 
-    expect(result.id.id).toBe(order.id.id);
-    expect(result.client.id.id).toBe(order.client.id.id);
+    expect(result.id.id).toBe(orderCreated.id);
+    expect(result.client.id.id).toBe(orderCreated.clientId);
     expect(result.products.length).toBe(1);
-    expect(result.products[0].id.id).toBe(order.products[0].id.id);
+    expect(result.products[0].id.id).toBe(orderCreated.products[0].id);
     expect(result.products[0].name).toBe("Product One");
-    expect(result.products[0].salesPrice).toBe(order.products[0].salesPrice);
+    expect(result.products[0].name).toBe(orderCreated.products[0].name);
+    expect(result.products[0].description).toBe(
+      orderCreated.products[0].description
+    );
+    expect(result.products[0].salesPrice).toBe(
+      orderCreated.products[0].salesPrice
+    );
   });
 });
