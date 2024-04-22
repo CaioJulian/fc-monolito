@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize-typescript";
 import { InvoiceModel } from "../repository/invoice.model";
-import { ProductModel } from "../repository/product.model";
+import { InvoiceItemModel } from "../repository/invoice-item.model";
 import InvoiceFacadeFactory from "../factory/invoice.facade.factory";
 
 describe("Invoice Facade test", () => {
@@ -14,7 +14,7 @@ describe("Invoice Facade test", () => {
       sync: { force: true },
     });
 
-    sequelize.addModels([InvoiceModel, ProductModel]);
+    sequelize.addModels([InvoiceModel, InvoiceItemModel]);
     await sequelize.sync();
   });
 
@@ -51,7 +51,7 @@ describe("Invoice Facade test", () => {
     const output = await invoiceFacade.generate(input);
     const result = await InvoiceModel.findOne({
       where: { id: output.id },
-      include: [ProductModel],
+      include: [InvoiceItemModel],
     });
 
     expect(result.id).toBeDefined();
@@ -63,12 +63,12 @@ describe("Invoice Facade test", () => {
     expect(result.city).toBe(input.city);
     expect(result.state).toBe(input.state);
     expect(result.zipCode).toBe(input.zipCode);
-    expect(result.products[0].id).toBe(input.items[0].id);
-    expect(result.products[0].name).toBe(input.items[0].name);
-    expect(result.products[0].price).toBe(input.items[0].price);
-    expect(result.products[1].id).toBe(input.items[1].id);
-    expect(result.products[1].name).toBe(input.items[1].name);
-    expect(result.products[1].price).toBe(input.items[1].price);
+    expect(result.items[0].id).toBe(input.items[0].id);
+    expect(result.items[0].name).toBe(input.items[0].name);
+    expect(result.items[0].price).toBe(input.items[0].price);
+    expect(result.items[1].id).toBe(input.items[1].id);
+    expect(result.items[1].name).toBe(input.items[1].name);
+    expect(result.items[1].price).toBe(input.items[1].price);
   });
 
   it("should find an invoice", async () => {

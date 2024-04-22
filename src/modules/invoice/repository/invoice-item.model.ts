@@ -9,10 +9,10 @@ import {
 import { InvoiceModel } from "./invoice.model";
 
 @Table({
-  tableName: "products",
+  tableName: "invoice_items",
   timestamps: false,
 })
-export class ProductModel extends Model {
+export class InvoiceItemModel extends Model {
   @PrimaryKey
   @Column({ allowNull: false })
   id: string;
@@ -22,7 +22,7 @@ export class ProductModel extends Model {
   invoiceId: string;
 
   @BelongsTo(() => InvoiceModel)
-  invoice: InvoiceModel
+  invoice: InvoiceModel;
 
   @Column({ allowNull: false })
   name: string;

@@ -1,18 +1,18 @@
 import BaseEntity from "../../@shared/domain/entity/base.entity";
 import Id from "../../@shared/domain/value-object/id.value-object";
 import Client from "./client.entity";
-import Product from "./product.entity";
+import OrderItem from "./order-item.entity";
 
 type OrderProps = {
   id?: Id;
   client: Client;
-  products: Product[];
+  products: OrderItem[];
   status?: string;
 };
 
 export default class Order extends BaseEntity {
   private _client: Client;
-  private _products: Product[];
+  private _products: OrderItem[];
   private _status: string;
 
   constructor(props: OrderProps) {
@@ -30,7 +30,7 @@ export default class Order extends BaseEntity {
     return this._client;
   }
 
-  get products(): Product[] {
+  get products(): OrderItem[] {
     return this._products;
   }
 

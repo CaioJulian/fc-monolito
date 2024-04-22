@@ -1,6 +1,6 @@
 import { PlaceOrderInputDto } from "./place-order.dto";
 import PlaceOrderUseCase from "./place-order.usecase";
-import Product from "../../domain/product.entity";
+import OrderItem from "../../domain/order-item.entity";
 import Id from "../../../@shared/domain/value-object/id.value-object";
 
 const mockDate = new Date(2000, 1, 1);
@@ -29,7 +29,7 @@ describe("PlaceOrderUseCase unit test", () => {
 
       let input: PlaceOrderInputDto = {
         clientId: "0",
-        products: [{ productId: "1" }],
+        products: [{ productId: "1", salesPrice: 100 }],
       };
 
       await expect(
@@ -38,7 +38,10 @@ describe("PlaceOrderUseCase unit test", () => {
 
       input = {
         clientId: "0",
-        products: [{ productId: "0" }, { productId: "1" }],
+        products: [
+          { productId: "0", salesPrice: 100 },
+          { productId: "1", salesPrice: 200 },
+        ],
       };
       await expect(
         placeOrderUseCase["validateProducts"](input)
@@ -47,7 +50,11 @@ describe("PlaceOrderUseCase unit test", () => {
 
       input = {
         clientId: "0",
-        products: [{ productId: "0" }, { productId: "1" }, { productId: "2" }],
+        products: [
+          { productId: "0", salesPrice: 100 },
+          { productId: "1", salesPrice: 200 },
+          { productId: "2", salesPrice: 300 },
+        ],
       };
       await expect(
         placeOrderUseCase["validateProducts"](input)
@@ -97,7 +104,7 @@ describe("PlaceOrderUseCase unit test", () => {
 
       const product = await placeOrderUseCase["getProduct"]("0");
       expect(product).toEqual(
-        new Product({
+        new OrderItem({
           id: new Id("0"),
           name: "Product 0",
           description: "Product 0 description",
@@ -202,13 +209,13 @@ describe("PlaceOrderUseCase unit test", () => {
       );
 
       const products = {
-        "1": new Product({
+        "1": new OrderItem({
           id: new Id("1"),
           name: "Product 1",
           description: "Product 1 description",
           salesPrice: 100,
         }),
-        "2": new Product({
+        "2": new OrderItem({
           id: new Id("2"),
           name: "Product 2",
           description: "Product 2 description",
@@ -241,7 +248,10 @@ describe("PlaceOrderUseCase unit test", () => {
 
         const input: PlaceOrderInputDto = {
           clientId: "1c",
-          products: [{ productId: "1" }, { productId: "2" }],
+          products: [
+            { productId: "1", salesPrice: 100 },
+            { productId: "2", salesPrice: 200 },
+          ],
         };
 
         let output = await placeOrderUseCase.execute(input);
@@ -249,8 +259,8 @@ describe("PlaceOrderUseCase unit test", () => {
         expect(output.id).toBeTruthy();
         expect(output.total).toBe(300);
         expect(output.products).toEqual([
-          { productId: "1" },
-          { productId: "2" },
+          { productId: "1", salesPrice: 100 },
+          { productId: "2", salesPrice: 200 },
         ]);
         expect(mockClientFacade.find).toHaveBeenCalledTimes(1);
         expect(mockClientFacade.find).toHaveBeenCalledWith({ id: "1c" });
@@ -280,7 +290,10 @@ describe("PlaceOrderUseCase unit test", () => {
 
         const input: PlaceOrderInputDto = {
           clientId: "1c",
-          products: [{ productId: "1" }, { productId: "2" }],
+          products: [
+            { productId: "1", salesPrice: 100 },
+            { productId: "2", salesPrice: 200 },
+          ],
         };
 
         let output = await placeOrderUseCase.execute(input);
@@ -288,8 +301,8 @@ describe("PlaceOrderUseCase unit test", () => {
         expect(output.invoiceId).toBe("1i");
         expect(output.total).toBe(300);
         expect(output.products).toStrictEqual([
-          { productId: "1" },
-          { productId: "2" },
+          { productId: "1", salesPrice: 100 },
+          { productId: "2", salesPrice: 200 },
         ]);
         expect(mockClientFacade.find).toHaveBeenCalledTimes(1);
         expect(mockClientFacade.find).toHaveBeenCalledWith({ id: "1c" });
